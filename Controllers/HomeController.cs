@@ -1,31 +1,30 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using APIFull.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
-namespace APIFull.Controllers;
-
-public class HomeController : Controller
+namespace APIFull.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    [ApiController]
+    public class HomeController : ControllerBase
     {
-        _logger = logger;
-    }
 
-    public IActionResult Index()
-    {
-        return View();
-    }
+        [HttpGet]
+        [Route("anonymous")]
+        [AllowAnonymous]
+        public string Anonymous() => "Anonymous method";
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+        [HttpGet]
+        [Route("authenticated")]
+        [Authorize]
+        public string Authenticated() => $"User Authenticated - {User.Identity.Name}";
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [HttpGet]
+        [Route("employee")]
+        [Authorize(Roles = "employee,manager")]
+        public string Employee() => "Employee";
+
+        [HttpGet]
+        [Route("manager")]
+        [Authorize(Roles = "manager")]
+        public string Manager() => "Manager";
     }
 }
